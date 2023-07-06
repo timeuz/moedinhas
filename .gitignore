@@ -112,6 +112,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.moedinhas/
 
 # Spyder project settings
 .spyderproject
@@ -130,3 +131,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+tasks.db
