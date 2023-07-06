@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tarefinhas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/d9f1428b94.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Tarefas de Hoje</h1>
+        <h3><a href="/report/Valentina">Valentina</a></h3>
+
+        {% for task in tasks_user1 %}
+            {% if task[4] != 1 %}
+            <div>
+                <h3>Tarefa: {{ task[1] }}</h3>
+                <!-- <p>Quem: {{ task[2] }}</p> -->
+                <form action="{{ url_for('complete_task', task_id=task[0]) }}" method="POST">
+                    <input type="hidden" name="task_id" value="{{ task[0] }}">
+                    <input type="submit" value="Concluir">
+                </form>
+            </div>
+            {% endif %}
+        {% endfor %}
+        <div class="row mb-5"></div>
+        <h3><a href="/report/Edgar">Edgar</a></h3>
+
+        {% for task in tasks_user2 %}
+            {% if task[4] != 1 %}
+            <div>
+                <h3>Tarefa: {{ task[1] }}</h3>
+                <!-- <p>Quem: {{ task[2] }}</p> -->
+                <form action="{{ url_for('complete_task', task_id=task[0]) }}" method="POST">
+                    <input type="hidden" name="task_id" value="{{ task[0] }}">
+                    <input type="submit" value="Concluir">
+                </form>
+            </div>
+            {% endif %}
+        {% endfor %}
+        <a href="/" class="btn btn-primary mt-5">Cadastrar nova tarefa</a>
+        <img src="{{ url_for('static', filename='full_screen.gif') }}" alt="Full Screen" id="fullscreen-img" class="mt-5" style="width: 25px; float: right;">
+    </div>
+    <script>
+        var fullscreenImg = document.getElementById('fullscreen-img');
+
+        fullscreenImg.addEventListener('click', function() {
+            var docElement = document.documentElement;
+            if (docElement.requestFullscreen) {
+                docElement.requestFullscreen();
+            } else if (docElement.mozRequestFullScreen) {
+                docElement.mozRequestFullScreen();
+            } else if (docElement.webkitRequestFullscreen) {
+                docElement.webkitRequestFullscreen();
+            } else if (docElement.msRequestFullscreen) {
+                docElement.msRequestFullscreen();
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html>
