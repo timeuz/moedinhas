@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="mb-4">📋 Cadastrar Nova Tarefa</h2>
+
+  <form method="POST" class="card p-4 shadow-sm">
+    <div class="mb-3">
+      <label for="descricao" class="form-label">Descrição da tarefa</label>
+      <input type="text" class="form-control" id="descricao" name="descricao" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="valor_moeda" class="form-label">Valor em moedinhas</label>
+      <input type="number" class="form-control" id="valor_moeda" name="valor_moeda" min="1" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="filho_id" class="form-label">Para qual filho?</label>
+      <select name="filho_id" id="filho_id" class="form-select" required>
+        <option disabled selected>Selecione um filho</option>
+        {% for filho in filhos %}
+          <option value="{{ filho.id }}">{{ filho.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="recorrente" id="recorrente">
+      <label class="form-check-label" for="recorrente">
+        Essa tarefa se repete todos os dias
+      </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">✅ Cadastrar Tarefa</button>
+  </form>
+{% endblock %}

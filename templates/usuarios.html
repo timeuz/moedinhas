@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="mb-4">👥 Usuários Cadastrados</h2>
+
+  <ul class="list-group">
+    {% for u in usuarios %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ u.nome }}</strong> — {{ u.tipo|capitalize }}
+        </div>
+        <a href="{{ url_for('mudar_senha_usuario', id=u.id) }}" class="btn btn-sm btn-outline-secondary">
+          🔐 Alterar Senha
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

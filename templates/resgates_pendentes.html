@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="mb-4">🎁 Resgates Pendentes</h2>
+
+  {% if pendentes %}
+    <ul class="list-group">
+      {% for r in pendentes %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ r.usuario.nome }}</strong> quer <em>{{ r.premio.nome }}</em> ({{ r.premio.custo }} moedinhas)
+          </div>
+          <div>
+            <a href="{{ url_for('aprovar', id=r.id) }}" class="btn btn-success btn-sm me-2">✅ Aprovar</a>
+            <a href="{{ url_for('recusar', id=r.id) }}" class="btn btn-outline-secondary btn-sm">❌ Recusar</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-info">Nenhum resgate pendente no momento.</div>
+  {% endif %}
+{% endblock %}

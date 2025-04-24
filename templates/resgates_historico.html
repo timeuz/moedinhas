@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="mb-4">📜 Histórico de Resgates</h2>
+
+  {% if resgates %}
+    <ul class="list-group">
+      {% for r in resgates %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            {% if session['usuario_tipo'] == 'responsavel' %}
+              <strong>{{ r.usuario.nome }}</strong> —
+            {% endif %}
+            <em>{{ r.premio.nome }}</em> por
+            <span class="text-warning"><i class="bi bi-coin"></i> {{ r.premio.custo }}</span>
+            — <small class="text-muted">{{ r.data.strftime('%d/%m/%Y %H:%M') }}</small>
+          </div>
+          <span class="badge
+                       {% if r.status == 'aprovado' %} bg-success
+                       {% elif r.status == 'recusado' %} bg-danger
+                       {% else %} bg-secondary {% endif %}">
+            {{ r.status|capitalize }}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-info">Nenhum resgate encontrado.</div>
+  {% endif %}
+{% endblock %}

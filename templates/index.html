@@ -1,33 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Tarefinhas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-</head>
-<body>
-    <div class="container">
-        <h1 class="text-center">Cadastro de Tarefas</h1>
-        <form action="#" method="POST">
-            <label for="quem">Quem:</label>
-            <select id="quem" name="quem" class="form-select">
-                <option value="Valentina">Valentina</option>
-                <option value="Edgar">Edgar</option>
-            </select>
-            <br>
-            <label for="tarefa">Tarefa:</label>
-            <input type="text" id="tarefa" name="tarefa" class="form-control">
-            <br>
-            <label for="fixa" class="form-check-label">Fixa:</label>
-            <input type="checkbox" id="fixa" name="fixa" class="form-check-input">
-            <br>
-            <input type="submit" value="Cadastrar" class="btn btn-primary">
-        </form>
-        <div class="row mt-5">
-            <div class="col">
-                <a href="/tasks" class="btn btn-primary te">Visualizar Tarefas</a>
-            </div>
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="mb-4">👨‍👩‍👧 Painel de Usuários</h2>
+
+  <div class="row">
+    {% for usuario in usuarios %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card mb-4 shadow-sm border-0">
+          <div class="card-body">
+            <h5 class="card-title">
+              {% if usuario.tipo == 'filho' %}
+                🧒 {{ usuario.nome }}
+              {% else %}
+                👨‍🦱 {{ usuario.nome }} <span class="badge bg-secondary">Responsável</span>
+              {% endif %}
+            </h5>
+            <p class="card-text">
+              <i class="bi bi-coin coin"></i> <strong>{{ usuario.moedas }}</strong> moedinhas
+            </p>
+          </div>
         </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-</body>
-</html>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

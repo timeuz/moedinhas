@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="mb-4">👨‍👩‍👧 Painel do Responsável</h2>
+
+  <h4>💰 Saldo dos Filhos</h4>
+  <ul class="list-group">
+    {% for filho in usuarios if filho.tipo == 'filho' %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ filho.nome }}
+        <span class="badge bg-warning text-dark">
+          <i class="bi bi-coin"></i> {{ filho.moedas }} moedinhas
+        </span>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <hr class="my-4">
+
+  <div class="row">
+    <h4 class="mb-4 text-center">Tarefas</h4>
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">📋 Cadastrar Nova Tarefa</h5>
+          <p class="card-text">Adicione tarefas para os filhos.</p>
+          <a href="{{ url_for('cadastrar_tarefa') }}" class="btn btn-primary btn-sm">Cadastrar</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">🔁 Renovar Tarefas Recorrentes</h5>
+          <p class="card-text">Renove as tarefas diárias que já foram concluídas.</p>
+          <a href="{{ url_for('renovar_tarefas') }}" class="btn btn-warning btn-sm">Renovar</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">📈 Relatório Mensal</h5>
+          <p class="card-text">Relatório de Tarefas, Moedinhas e Prêmios.</p>
+          <a href="{{ url_for('relatorio') }}" class="btn btn-primary btn-sm">Acessar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-4">
+
+  <div class="row">
+    <h4 class="mb-4 text-center">Prêmios</h4>
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">🛍️ Novo Prêmio</h5>
+          <p class="card-text">Adicione novos itens à loja de recompensas.</p>
+          <a href="{{ url_for('cadastro_premio') }}" class="btn btn-primary btn-sm">Cadastrar</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">🎁 Aprovar Resgates</h5>
+          <p class="card-text">Veja os pedidos de prêmios e aprove ou recuse.</p>
+          <a href="{{ url_for('resgates_pendentes') }}" class="btn btn-success btn-sm">Aprovar Resgates</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">📜 Histórico de Pedidos</h5>
+          <p class="card-text">Visualizar pedidos e seu respectivo status.</p>
+          <a href="{{ url_for('resgates') }}" class="btn btn-primary btn-sm">Ver Histórico</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">🛠️ Editar Prêmios</h5>
+          <p class="card-text">Atualize ou exclua itens da loja de recompensas.</p>
+          <a href="{{ url_for('gerenciar_premios') }}" class="btn btn-warning btn-sm">Gerenciar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-4">
+
+  <div class="row">
+    <h4 class="mb-4 text-center">Usuários</h4>
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">➕ Novo Usuário</h5>
+          <p class="card-text">Cadastre filhos ou responsáveis no sistema.</p>
+          <a href="{{ url_for('cadastro_usuario') }}" class="btn btn-primary btn-sm">Cadastrar</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body text-center">
+          <h5 class="card-title">👥 Gerenciar Usuários</h5>
+          <p class="card-text">Altere senhas de filhos e responsáveis.</p>
+          <a href="{{ url_for('usuarios') }}" class="btn btn-primary btn-sm">Ver Lista</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

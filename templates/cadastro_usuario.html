@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="mb-4">➕ Cadastrar Novo Usuário</h2>
+
+  <form method="POST" class="card p-4 shadow-sm">
+    <div class="mb-3">
+      <label for="nome" class="form-label">Nome</label>
+      <input type="text" class="form-control" id="nome" name="nome" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="senha" class="form-label">Senha</label>
+      <input type="password" class="form-control" id="senha" name="senha" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Tipo de Usuário</label>
+      <select name="tipo" class="form-select" required>
+        <option disabled selected>Selecione</option>
+        <option value="filho">Filho</option>
+        <option value="responsavel">Responsável</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">✅ Cadastrar</button>
+  </form>
+{% endblock %}

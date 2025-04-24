@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="mb-4">⚙️ Gerenciar Prêmios</h2>
+
+  <ul class="list-group">
+    {% for p in premios %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ p.nome }}</strong> — <i class="bi bi-coin text-warning"></i> {{ p.custo }}
+        </div>
+        <div>
+          <a href="{{ url_for('editar_premio', id=p.id) }}" class="btn btn-sm btn-outline-primary me-2">✏️ Editar</a>
+          <a href="{{ url_for('excluir_premio', id=p.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Deseja mesmo excluir este prêmio?')">🗑️ Excluir</a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

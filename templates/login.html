@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow border-0">
+      <div class="card-body">
+        <h3 class="mb-4 text-center">🔐 Entrar no Moedinhas</h3>
+
+        <form method="POST">
+          <div class="mb-3">
+            <label for="nome" class="form-label">Nome de usuário</label>
+            <input type="text" class="form-control" name="nome" id="nome" required>
+          </div>
+          <div class="mb-3">
+            <label for="senha" class="form-label">Senha</label>
+            <input type="password" class="form-control" name="senha" id="senha" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Entrar</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

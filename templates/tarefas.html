@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="mb-4">📋 Tarefas Pendentes</h2>
+
+  {% if tipo == 'responsavel' %}
+    {% if tarefas_por_filho %}
+      {% for nome, tarefas in tarefas_por_filho.items() %}
+        <h4 class="mt-4">🧒 {{ nome }}</h4>
+        {% if tarefas %}
+          <div class="row">
+            {% for tarefa in tarefas %}
+              <div class="col-md-6 col-lg-4">
+                <div class="card mb-3 shadow-sm border-start border-warning border-3">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ tarefa.descricao }}</h5>
+                    <p class="card-text">
+                      Valor: <i class="bi bi-coin coin"></i> {{ tarefa.valor_moeda }}
+                    </p>
+                    <div class="d-flex justify-content-between">
+                      <a href="{{ url_for('concluir', id=tarefa.id) }}" class="btn btn-success btn-sm">✅ Concluir</a>
+                      <a href="{{ url_for('excluir_tarefa', id=tarefa.id) }}" class="btn btn-danger btn-sm"
+                         onclick="return confirm('Deseja realmente excluir esta tarefa?')">Excluir</a>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted">Nenhuma tarefa pendente para este filho.</p>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="alert alert-info">Não há filhos cadastrados com tarefas.</div>
+    {% endif %}
+
+  {% else %}
+    {% if tarefas %}
+      <div class="row">
+        {% for tarefa in tarefas %}
+          <div class="col-md-6 col-lg-4">
+            <div class="card mb-3 shadow-sm border-start border-warning border-3">
+              <div class="card-body">
+                <h5 class="card-title">{{ tarefa.descricao }}</h5>
+                <p class="card-text">Valor: <i class="bi bi-coin coin"></i> {{ tarefa.valor_moeda }}</p>
+                <a href="{{ url_for('concluir', id=tarefa.id) }}" class="btn btn-success btn-sm">✅ Concluir</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info">Você não tem tarefas pendentes.</div>
+    {% endif %}
+  {% endif %}
+{% endblock %}

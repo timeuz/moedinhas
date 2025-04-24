@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="mb-4">👋 Olá, {{ usuario.nome }}!</h2>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body text-center">
+      <h5 class="card-title">Seu saldo:</h5>
+      <p class="display-6 text-warning">
+        <i class="bi bi-coin"></i> {{ usuario.moedas }} moedinhas
+      </p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3">
+        <a href="{{ url_for('tarefas') }}" class="btn btn-success">📋 Ver Tarefas</a>
+        <a href="{{ url_for('loja') }}" class="btn btn-primary">🏪 Ir à Loja</a>
+        <a href="{{ url_for('resgates') }}" class="btn btn-dark">📜 Meus Resgates</a>
+      </div>
+    </div>
+  </div>
+
+  <p class="text-muted text-center">Complete tarefas e troque suas moedinhas por prêmios!</p>
+{% endblock %}

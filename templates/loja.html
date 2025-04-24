@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2 class="mb-4">🏪 Loja de Prêmios</h2>
+
+  {% if premios %}
+    <div class="row">
+      {% for premio in premios %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card mb-4 shadow-sm border-start border-success border-3">
+            <div class="card-body">
+              <h5 class="card-title">{{ premio.nome }}</h5>
+              <p class="card-text">
+                Custa: <i class="bi bi-coin coin"></i> <strong>{{ premio.custo }}</strong> moedinhas
+              </p>
+              <a href="{{ url_for('resgatar', id=premio.id) }}" class="btn btn-primary btn-sm">
+                🎁 Resgatar
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info">Nenhum prêmio disponível ainda. Volte mais tarde!</div>
+  {% endif %}
+{% endblock %}

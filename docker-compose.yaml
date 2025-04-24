@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  moedinhas:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - moedinhas_db:/app/moedinhas.db  # volume persistente do banco
+    environment:
+      - FLASK_ENV=development
+
+volumes:
+  moedinhas_db:
