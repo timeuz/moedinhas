@@ -23,7 +23,7 @@ jobs:
         aws-region: us-east-1
 
     - name: Copy files to Lightsail via SSH
-      uses: appleboy/scp-action@v0.1.8
+      uses: appleboy/scp-action@v1
       with:
         host: ${{ secrets.LIGHTSAIL_INSTANCE_IP }}
         username: deploy-user
@@ -32,7 +32,7 @@ jobs:
         target: "/opt/HOME/moedinhas"
 
     - name: Remote SSH commands
-      uses: appleboy/ssh-action@v0.1.8
+      uses: appleboy/ssh-action@v1
       with:
         host: ${{ secrets.LIGHTSAIL_INSTANCE_IP }}
         username: deploy-user
@@ -40,5 +40,4 @@ jobs:
         script: |
           cd /opt/HOME/moedinhas
           docker-compose down
-          docker-compose pull
           docker-compose up -d --build
