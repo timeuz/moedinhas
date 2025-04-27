@@ -11,7 +11,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # 1) Se você usa Docker Compose:
     - name: Set up Docker
       uses: docker/setup-buildx-action@v2
 
@@ -39,5 +38,9 @@ jobs:
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
           cd /opt/HOME/moedinhas
+          echo "FLASK_ENV=production" > .env
+          echo "VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" >> .env
+          echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
+          echo "VAPID_CLAIMS_SUB=${{ secrets.VAPID_CLAIMS_SUB }}" >> .env
           docker-compose down
           docker-compose up -d --build
