@@ -3,6 +3,8 @@ version: '3.9'
 services:
   moedinhas:
     build: .
+    container_name: moedinhas
+    restart: unless-stopped
     ports:
       - "5123:5123"
     volumes:
