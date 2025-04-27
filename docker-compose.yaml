@@ -4,12 +4,12 @@ services:
   moedinhas:
     build: .
     ports:
-      - "5000:5000"
+      - "5123:5123"
     volumes:
       - .:/app
-      - moedinhas_db:/app/moedinhas.db  # volume persistente do banco
-    environment:
-      - FLASK_ENV=development
+      - moedinhas_db:/app/moedinhas.db
+    env_file:
+      - .env
 
 volumes:
   moedinhas_db:

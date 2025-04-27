@@ -1,10 +1,23 @@
 import os
+import logging
+import json
 from flask import Flask, render_template, redirect, url_for, session, request, flash
 from models import db, Usuario, Tarefa, Premio, Resgate
 from functools import wraps
 from datetime import timedelta, datetime
+from pywebpush import webpush, WebPushException
 
-app = Flask(__name__)
+# app = Flask(__name__)
+app = Flask(__name__, static_folder=".")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+@app.route("/service-worker.js")
+def sw():
+    return app.send_static_file("service-worker.js")
+
+
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///moedinhas.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = os.urandom(24).hex()
@@ -58,7 +71,9 @@ def tarefas():
     if tipo == "filho":
         # Filho só vê suas próprias tarefas pendentes
         tarefas = Tarefa.query.filter_by(usuario_id=usuario_id, feita=False).all()
-        return render_template("tarefas.html", tarefas=tarefas)
+        return render_template(
+            "tarefas.html", tarefas=tarefas, VAPID_PUBLIC_KEY=VAPID_PUBLIC_KEY
+        )
 
     # Responsável vê todas as tarefas pendentes, separadas por filho
     filhos = Usuario.query.filter_by(tipo="filho").all()
@@ -68,7 +83,10 @@ def tarefas():
     }
 
     return render_template(
-        "tarefas.html", tarefas_por_filho=tarefas_por_filho, tipo="responsavel"
+        "tarefas.html",
+        tarefas_por_filho=tarefas_por_filho,
+        tipo="responsavel",
+        VAPID_PUBLIC_KEY=VAPID_PUBLIC_KEY,
     )
 
 
@@ -169,6 +187,7 @@ def cadastro_premio():
             novo = Premio(nome=nome, custo=custo)
             db.session.add(novo)
             db.session.commit()
+            atualizar_sessao_premios()
             flash("Prêmio cadastrado com sucesso!", "success")
             return redirect(url_for("painel_pais"))
 
@@ -191,6 +210,7 @@ def editar_premio(id):
         premio.nome = request.form["nome"]
         premio.custo = int(request.form["custo"])
         db.session.commit()
+        atualizar_sessao_premios()
         flash("Prêmio atualizado com sucesso!", "success")
         return redirect(url_for("gerenciar_premios"))
 
@@ -203,6 +223,7 @@ def excluir_premio(id):
     premio = Premio.query.get_or_404(id)
     db.session.delete(premio)
     db.session.commit()
+    atualizar_sessao_premios()
     flash("Prêmio excluído com sucesso.", "info")
     return redirect(url_for("gerenciar_premios"))
 
@@ -253,7 +274,11 @@ def resgates():
 @pais_required
 def resgates_pendentes():
     pendentes = Resgate.query.filter_by(status="pendente").all()
-    return render_template("resgates_pendentes.html", pendentes=pendentes)
+    return render_template(
+        "resgates_pendentes.html",
+        pendentes=pendentes,
+        VAPID_PUBLIC_KEY=VAPID_PUBLIC_KEY,
+    )
 
 
 @app.route("/aprovar/<int:id>")
@@ -268,6 +293,11 @@ def aprovar(id):
         resgate.status = "aprovado"
         db.session.commit()
         flash("Resgate aprovado!", "success")
+        enviar_notificacao(
+            usuario.id,
+            "🎉 Resgate aprovado!",
+            f"Seu pedido de '{premio.nome}' foi aprovado!",
+        )
     else:
         flash("Usuário não tem mais moedinhas suficientes.", "danger")
 
@@ -278,15 +308,23 @@ def aprovar(id):
 @pais_required
 def recusar(id):
     resgate = Resgate.query.get_or_404(id)
+    usuario = Usuario.query.get(resgate.usuario_id)
+    premio = Premio.query.get(resgate.premio_id)
     resgate.status = "recusado"
     db.session.commit()
     flash("Resgate recusado.", "secondary")
+    enviar_notificacao(
+        usuario.id,
+        "❌ Resgate recusado",
+        f"Seu pedido de '{premio.nome}' foi recusado.",
+    )
     return redirect(url_for("resgates_pendentes"))
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     session.permanent = True
+    session["tem_premios"] = Premio.query.count() > 0
     if request.method == "POST":
         nome = request.form["nome"]
         senha = request.form["senha"]
@@ -301,6 +339,10 @@ def login():
         else:
             flash("Nome ou senha inválidos", "danger")
     return render_template("login.html")
+
+
+def atualizar_sessao_premios():
+    session["tem_premios"] = Premio.query.count() > 0
 
 
 @app.route("/logout")
@@ -321,7 +363,13 @@ def painel_pais():
 @login_required
 def painel_filho():
     usuario = Usuario.query.get(session["usuario_id"])
-    return render_template("painel_filho.html", usuario=usuario)
+    tem_premios = Premio.query.count() > 0
+    return render_template(
+        "painel_filho.html",
+        usuario=usuario,
+        tem_premios=tem_premios,
+        VAPID_PUBLIC_KEY=VAPID_PUBLIC_KEY,
+    )
 
 
 @app.route("/cadastro_usuario", methods=["GET", "POST"])
@@ -380,20 +428,34 @@ def cadastrar_tarefa():
     if request.method == "POST":
         descricao = request.form["descricao"]
         valor = int(request.form["valor_moeda"])
-        filho_id = int(request.form["filho_id"])
+        usuario_id = int(request.form["filho_id"])
         recorrente = "recorrente" in request.form
+
         nova = Tarefa(
             descricao=descricao,
             valor_moeda=valor,
-            usuario_id=filho_id,
+            usuario_id=usuario_id,
             recorrente=recorrente,
         )
         db.session.add(nova)
         db.session.commit()
-        flash("Tarefa criada com sucesso!", "success")
+
+        atualizar_sessao_premios()  # opcional
+        flash("Tarefa cadastrada com sucesso!", "success")
+
+        # ✅ Enviar notificação para o filho
+        filho = Usuario.query.get(usuario_id)
+        enviar_notificacao(
+            usuario_id,
+            "📋 Nova Tarefa!",
+            f"{filho.nome}, você tem uma nova tarefa para completar!",
+        )
+
         return redirect(url_for("painel_pais"))
 
-    return render_template("cadastrar_tarefa.html", filhos=filhos)
+    return render_template(
+        "cadastrar_tarefa.html", filhos=filhos, VAPID_PUBLIC_KEY=VAPID_PUBLIC_KEY
+    )
 
 
 @app.route("/renovar_tarefas")
@@ -414,6 +476,11 @@ def renovar_tarefas():
         db.session.add_all(novas)
         db.session.commit()
         flash(f"{len(novas)} tarefas renovadas com sucesso!", "success")
+        enviar_notificacao(
+            tarefa.usuario_id,
+            "🔁 Tarefas renovadas",
+            f"Você tem novas tarefas disponíveis hoje!",
+        )
     else:
         flash("Nenhuma tarefa recorrente para renovar.", "info")
 
@@ -428,6 +495,58 @@ def excluir_tarefa(id):
     db.session.commit()
     flash("Tarefa excluída com sucesso.", "info")
     return redirect(url_for("tarefas"))
+
+
+VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY")
+VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY")
+VAPID_CLAIMS = {"sub": os.getenv("VAPID_CLAIMS_SUB", "mailto:default@email.com")}
+
+
+assinaturas = {}  # salvar em banco depois
+
+
+@app.route("/salvar_assinatura", methods=["POST"])
+def salvar_assinatura():
+    data = request.get_json()
+    usuario_id = session.get("usuario_id")
+    if usuario_id:
+        assinaturas[usuario_id] = data
+        logger.info(f"Assinatura salva para usuário {usuario_id}")
+        return "", 204
+    logger.warning("Tentativa de salvar assinatura sem usuário logado")
+    return "", 400
+
+
+def enviar_notificacao(usuario_id, titulo, corpo):
+    sub = assinaturas.get(usuario_id)
+    if not sub:
+        logger.warning(
+            f"Sem assinatura para usuário {usuario_id}; notificação não enviada"
+        )
+        return
+
+    try:
+        resp = webpush(
+            subscription_info=sub,
+            data=json.dumps({"title": titulo, "body": corpo}),
+            vapid_private_key=VAPID_PRIVATE_KEY,
+            vapid_claims=VAPID_CLAIMS,
+        )
+        logger.info(f"Push enviado para {usuario_id}, status {resp.status_code}")
+    except WebPushException as ex:
+        logger.error(f"Falha ao enviar push para {usuario_id}: {ex}")
+    except Exception as ex:
+        logger.exception(f"Erro inesperado ao enviar push para {usuario_id}")
+
+
+@app.route("/test_push")
+@login_required
+def test_push():
+    uid = session["usuario_id"]
+    enviar_notificacao(
+        uid, "🚀 Teste de Notificação", "Se você vê isto, o envio funcionou!"
+    )
+    return "", 204
 
 
 # POPULAR BANCO
@@ -453,4 +572,4 @@ def criar():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5123, debug=True)

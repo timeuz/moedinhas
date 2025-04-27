@@ -21,3 +21,8 @@
     <div class="alert alert-info">Nenhum resgate pendente no momento.</div>
   {% endif %}
 {% endblock %}
+<script>
+  if (Notification.permission !== "granted") {
+    habilitarNotificacoes();
+  }
+</script>

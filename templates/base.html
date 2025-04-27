@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" />
   <title>Moedinhas</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -64,7 +65,9 @@
           {% elif session.get("usuario_tipo") == "filho" %}
             <li class="nav-item"><a class="nav-link" href="{{ url_for('painel_filho') }}">Painel</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('tarefas') }}">Tarefas</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('loja') }}">Loja</a></li>
+            {% if session.get("tem_premios") %}
+              <li class="nav-item"><a class="nav-link" href="{{ url_for('loja') }}">Loja</a></li>
+            {% endif %}
             <li class="nav-item"><a class="nav-link" href="{{ url_for('resgates') }}">Histórico</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Sair</a></li>
           {% endif %}
@@ -89,5 +92,51 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- NOTIFICAÇÕES PUSH -->
+  <!-- service-worker + push setup -->
+  {% block scripts %}
+  <script>
+    // 1) Registrar SW na raiz
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('SW registrado:', reg))
+        .catch(err => console.error('Falha ao registrar SW:', err));
+    }
+
+    // 2) Chave VAPID injetada pelo Flask
+    const vapidPublicKey = "{{ VAPID_PUBLIC_KEY }}";
+    console.log("VAPID_KEY:", vapidPublicKey);
+
+    // 3) Converter base64 → Uint8Array
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const raw = atob(base64);
+      return new Uint8Array([...raw].map(c => c.charCodeAt(0)));
+    }
+
+    // 4) Função que pede permissão e salva a assinatura
+    async function habilitarNotificacoes() {
+      const reg = await navigator.serviceWorker.ready;
+      const perm = await Notification.requestPermission();
+      console.log("Permissão:", perm);
+      if (perm !== 'granted') return;
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+      });
+      console.log("Subscrição:", sub);
+      fetch('/salvar_assinatura', {
+        method: 'POST',
+        credentials: 'same-origin',        // <— adiciona esta linha
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sub)
+      })
+      .then(r => console.log('salvar_assinatura status:', r.status))
+      .catch(e => console.error('erro no fetch:', e));
+    }
+  </script>
+  {% endblock %}
 </body>
 </html>

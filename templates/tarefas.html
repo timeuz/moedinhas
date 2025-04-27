@@ -56,3 +56,8 @@
     {% endif %}
   {% endif %}
 {% endblock %}
+<script>
+  if (Notification.permission !== "granted") {
+    habilitarNotificacoes();
+  }
+</script>

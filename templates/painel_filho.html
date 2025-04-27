@@ -11,11 +11,25 @@
       </p>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3">
         <a href="{{ url_for('tarefas') }}" class="btn btn-success">📋 Ver Tarefas</a>
-        <a href="{{ url_for('loja') }}" class="btn btn-primary">🏪 Ir à Loja</a>
+        {% if session.get("tem_premios") %}
+          <a href="{{ url_for('loja') }}" class="btn btn-primary">🏪 Ir à Loja</a>
+        {% endif %}
         <a href="{{ url_for('resgates') }}" class="btn btn-dark">📜 Meus Resgates</a>
       </div>
     </div>
   </div>
 
   <p class="text-muted text-center">Complete tarefas e troque suas moedinhas por prêmios!</p>
+{% endblock %}
+{% block scripts %}
+  {{ super() }}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (Notification.permission === 'default') {
+        habilitarNotificacoes();
+      } else {
+        console.log("Notificações já:", Notification.permission);
+      }
+    });
+  </script>
 {% endblock %}

@@ -34,3 +34,8 @@
     <button type="submit" class="btn btn-primary">✅ Cadastrar Tarefa</button>
   </form>
 {% endblock %}
+<script>
+  if (Notification.permission !== "granted") {
+    habilitarNotificacoes();
+  }
+</script>

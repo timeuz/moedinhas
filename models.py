@@ -36,3 +36,5 @@ class Resgate(db.Model):
     status = db.Column(
         db.String(20), default="pendente"
     )  # pendente, aprovado, recusado
+    usuario = db.relationship("Usuario", backref="resgates")
+    premio = db.relationship("Premio")
