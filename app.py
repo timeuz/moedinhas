@@ -1,6 +1,7 @@
 import os
 import logging
 import json
+from collections import defaultdict
 from flask import Flask, render_template, redirect, url_for, session, request, flash
 from models import db, Usuario, Tarefa, Premio, Resgate
 from functools import wraps
@@ -154,6 +155,24 @@ def relatorio():
             or 0
         )
 
+        tarefas_detalhadas = (
+            Tarefa.query.filter(
+                Tarefa.usuario_id == filho.id,
+                Tarefa.feita == True,
+                db.extract("month", Tarefa.data_conclusao) == mes,
+                db.extract("year", Tarefa.data_conclusao) == ano,
+            )
+            .order_by(Tarefa.data_conclusao)
+            .all()
+        )
+
+        tarefas_por_dia = defaultdict(list)
+        for tarefa in tarefas_detalhadas:
+            dia = tarefa.data_conclusao.strftime("%d/%m/%Y")
+            tarefas_por_dia[dia].append(
+                {"descricao": tarefa.descricao, "valor": tarefa.valor_moeda}
+            )
+
         relatorios.append(
             {
                 "nome": filho.nome,
@@ -161,6 +180,9 @@ def relatorio():
                 "ganhas": moedas_ganhas,
                 "resgates": resgates_aprovados,
                 "gastas": moedas_gastas,
+                "detalhes": dict(
+                    tarefas_por_dia
+                ),  # convertendo de defaultdict para dict
             }
         )
 

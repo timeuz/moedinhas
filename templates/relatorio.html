@@ -23,25 +23,67 @@
   {% for r in relatorios %}
     <div class="card mb-4 shadow-sm">
       <div class="card-body">
-        <h4 class="card-title mb-3">🧒 {{ r.nome }}</h4>
-        <div class="row text-center">
+        <h4 class="card-title mb-4">🧒 {{ r.nome }}</h4>
+        <h4 class="text-muted text-center mb-3">Resumo</h4>
+
+        <div class="row text-center mb-3">
           <div class="col-sm-6 col-md-3">
             <p class="mb-1">📋 Tarefas concluídas</p>
             <p class="fs-5">{{ r.tarefas }}</p>
           </div>
           <div class="col-sm-6 col-md-3">
-            <p class=" mb-1">💰 Moedinhas Ganhas</p>
+            <p class="mb-1">💰 Moedinhas Ganhas</p>
             <p class="fs-5 text-warning"><i class="bi bi-coin"></i> {{ r.ganhas }}</p>
           </div>
           <div class="col-sm-6 col-md-3">
-            <p class=" mb-1">🎁 Prêmios Resgatados</p>
+            <p class="mb-1">🎁 Prêmios Resgatados</p>
             <p class="fs-5">{{ r.resgates }}</p>
           </div>
           <div class="col-sm-6 col-md-3">
-            <p class=" mb-1">🧾 Moedinhas Gastas</p>
+            <p class="mb-1">🧾 Moedinhas Gastas</p>
             <p class="fs-5 text-danger"><i class="bi bi-coin"></i> {{ r.gastas }}</p>
           </div>
         </div>
+        <hr>
+        {% if r.premios %}
+          <div class="mt-3">
+            <h6 class="text-muted">🎁 Detalhes dos Prêmios:</h6>
+            <ul class="list-group list-group-flush mb-3">
+              {% for premio in r.premios %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  🏆 {{ premio.nome }}
+                  <span class="badge bg-danger rounded-pill"><i class="bi bi-coin"></i> {{ premio.custo }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        {% if r.detalhes %}
+          <div class="mt-3">
+            <h4 class="text-muted">✅ Tarefas Concluídas:</h4>
+              {% for dia, tarefas in r.detalhes.items() %}
+                  <h2 class="text-warning text-center">{{ dia }}</h2>
+                  <div class="row  text-center">
+                    <div class="col-sm-6 col-md-6">
+                      <h4>📝 Tarefa</h4>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                    <h3>💰 Moedinhas Ganhas</h3>
+                    </div>
+                    {% for tarefa in tarefas %}
+                      <div class="col-sm-6 col-md-6">
+                        {{ tarefa.descricao }}
+                      </div>
+                      <div class="col-sm-6 col-md-6">
+                        {{ tarefa.valor }}
+                      </div>
+                    {% endfor %}
+                  </div>
+              {% endfor %}
+          </div>
+        {% endif %}
+
       </div>
     </div>
   {% endfor %}
