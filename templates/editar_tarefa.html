@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Editar Tarefa</h2>
+<form method="POST" class="mt-3">
+  <div class="mb-3">
+    <label for="valor_moeda" class="form-label">Moedinhas</label>
+    <input type="number" class="form-control" id="valor_moeda" name="valor_moeda" value="{{ tarefa.valor_moeda }}" required>
+  </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" name="recorrente" id="recorrente" {% if tarefa.recorrente %}checked{% endif %}>
+    <label class="form-check-label" for="recorrente">Tarefa Recorrente</label>
+  </div>
+  <button type="submit" class="btn btn-primary">Salvar</button>
+  <a href="{{ url_for('tarefas') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

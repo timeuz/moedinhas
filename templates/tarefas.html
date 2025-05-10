@@ -19,6 +19,7 @@
                     </p>
                     <div class="d-flex justify-content-between">
                       <a href="{{ url_for('concluir', id=tarefa.id) }}" class="btn btn-success btn-sm">✅ Concluir</a>
+                      <a href="{{ url_for('editar_tarefa', id=tarefa.id) }}" class="btn btn-warning btn-sm">✏️ Editar</a>
                       <a href="{{ url_for('excluir_tarefa', id=tarefa.id) }}" class="btn btn-danger btn-sm"
                          onclick="return confirm('Deseja realmente excluir esta tarefa?')">Excluir</a>
                     </div>

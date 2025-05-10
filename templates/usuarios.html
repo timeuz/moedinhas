@@ -8,9 +8,14 @@
         <div>
           <strong>{{ u.nome }}</strong> — {{ u.tipo|capitalize }}
         </div>
-        <a href="{{ url_for('mudar_senha_usuario', id=u.id) }}" class="btn btn-sm btn-outline-secondary">
-          🔐 Alterar Senha
-        </a>
+        <div>
+          <a href="{{ url_for('mudar_senha_usuario', id=u.id) }}" class="btn btn-sm btn-outline-secondary">
+            🔐 Alterar Senha
+          </a>
+          <a href="{{ url_for('editar_saldo', id=u.id) }}" class="btn btn-sm btn-outline-secondary">
+            💰 Editar Saldo
+          </a>
+        </div>
       </li>
     {% endfor %}
   </ul>

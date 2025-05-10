@@ -480,31 +480,68 @@ def cadastrar_tarefa():
     )
 
 
+@app.route("/editar_saldo/<int:id>", methods=["GET", "POST"])
+@pais_required
+def editar_saldo(id):
+    usuario = Usuario.query.get_or_404(id)
+    if request.method == "POST":
+        novo_saldo = int(request.form["saldo"])
+        usuario.moedas = novo_saldo
+        db.session.commit()
+        flash("Saldo atualizado com sucesso!", "success")
+        return redirect(url_for("usuarios"))
+    return render_template("editar_saldo.html", usuario=usuario)
+
+
+@app.route("/editar_tarefa/<int:id>", methods=["GET", "POST"])
+@pais_required
+def editar_tarefa(id):
+    tarefa = Tarefa.query.get_or_404(id)
+    if request.method == "POST":
+        tarefa.valor_moeda = int(request.form["valor_moeda"])
+        tarefa.recorrente = "recorrente" in request.form
+        db.session.commit()
+        flash("Tarefa atualizada com sucesso!", "success")
+        return redirect(url_for("tarefas"))
+    return render_template("editar_tarefa.html", tarefa=tarefa)
+
+
 @app.route("/renovar_tarefas")
 @pais_required
 def renovar_tarefas():
     tarefas = Tarefa.query.filter_by(recorrente=True, feita=True).all()
     novas = []
+
     for tarefa in tarefas:
-        nova = Tarefa(
+        # Verifica se já existe uma tarefa idêntica pendente
+        ja_existe = Tarefa.query.filter_by(
             descricao=tarefa.descricao,
-            valor_moeda=tarefa.valor_moeda,
             usuario_id=tarefa.usuario_id,
             recorrente=True,
-        )
-        novas.append(nova)
+            feita=False,
+        ).first()
+
+        if not ja_existe:
+            nova = Tarefa(
+                descricao=tarefa.descricao,
+                valor_moeda=tarefa.valor_moeda,
+                usuario_id=tarefa.usuario_id,
+                recorrente=True,
+            )
+            novas.append(nova)
 
     if novas:
         db.session.add_all(novas)
         db.session.commit()
         flash(f"{len(novas)} tarefas renovadas com sucesso!", "success")
-        enviar_notificacao(
-            tarefa.usuario_id,
-            "🔁 Tarefas renovadas",
-            f"Você tem novas tarefas disponíveis hoje!",
-        )
+        # Enviar uma notificação para cada usuário (evita enviar para o último apenas)
+        usuarios_notificados = set(tarefa.usuario_id for tarefa in novas)
+        for uid in usuarios_notificados:
+            enviar_notificacao(
+                uid, "🔁 Tarefas renovadas", "Você tem novas tarefas disponíveis hoje!"
+            )
     else:
-        flash("Nenhuma tarefa recorrente para renovar.", "info")
+        flash("Nenhuma tarefa renovável disponível no momento.", "info")
 
     return redirect(url_for("painel_pais"))
 
